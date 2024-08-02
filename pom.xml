@@ -11,7 +11,7 @@
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>API client implementation for interfacing Loretta public API</description>
-    <url>https://github.com/Skykeys-GmbH/loretta-sdk-java-api-client-v1</url>
+    <url>https://github.com/Skykeys-GmbH/loretta-sdk-java-api-client</url>
 
     <licenses>
         <license>
