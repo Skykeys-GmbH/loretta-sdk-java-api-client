@@ -1,6 +1,11 @@
 package aero.loretta.client.exception;
 
+import java.io.Serial;
+
 public class AuthenticationFailedException extends LorettaClientException {
+    @Serial
+    private static final long serialVersionUID = 990652574037474280L;
+
     public AuthenticationFailedException() {
     }
 

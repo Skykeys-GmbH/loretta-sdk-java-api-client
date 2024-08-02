@@ -26,13 +26,9 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
 import java.util.*;
 import java.util.regex.Pattern;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 class LorettaApiImpl implements LorettaApi {
     private static final Logger log = LoggerFactory.getLogger(LorettaApi.class);
-    private static final byte[] ZIP_MAGIC = {0x50, 0x4b, 0x03, 0x04};
-    private static final int EOF = -1;
     private static final Pattern RX_UUID = Pattern.compile(
             "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$");
     private final DateTimeFormatter STD_GUFI_FORMATTER = (new DateTimeFormatterBuilder())
@@ -98,7 +94,7 @@ class LorettaApiImpl implements LorettaApi {
     public UploadResponse uploadEff(byte[] eff, String gufi, List<String> employeeIds) throws LorettaClientException {
         Objects.requireNonNull(eff, "eff is required");
 
-        String xml = extractFlightplanxml(eff);
+        String xml = extractFlightPlanXml(eff);
         return uploadFlightPlan(xml, gufi, employeeIds);
     }
 
@@ -193,15 +189,15 @@ class LorettaApiImpl implements LorettaApi {
         return gufi.substring(0, operatorGufiPrefix.length()).equalsIgnoreCase(operatorGufiPrefix);
     }
 
-    private static String extractFlightplanxml(byte[] eff) {
+    private static String extractFlightPlanXml(byte[] eff) {
         try {
-            Map<String, byte[]> effFiles = readZipArchive(eff);
+            Map<String, byte[]> effFiles = IOUtils.readZipArchive(eff);
             byte[] innerArchive = effFiles.values()
                     .stream()
-                    .filter(LorettaApiImpl::isZip)
+                    .filter(IOUtils::isZipArchive)
                     .findFirst()
                     .orElseThrow(() -> new LorettaClientException("Unable to find flightplan in eff"));
-            effFiles = readZipArchive(innerArchive);
+            effFiles = IOUtils.readZipArchive(innerArchive);
 
             for(var p : effFiles.entrySet()) {
                 var filename = p.getKey();
@@ -233,49 +229,6 @@ class LorettaApiImpl implements LorettaApi {
         }
     }
 
-    private static boolean isZip(byte[] content) {
-        if (content.length <= ZIP_MAGIC.length) {
-            return false;
-        }
-        for(int i = 0; i < ZIP_MAGIC.length; i++) {
-            if (ZIP_MAGIC[i] != content[i]) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private static Map<String, byte[]> readZipArchive(byte[] content) throws IOException {
-        Map<String, byte[]> result = new HashMap<>();
-
-        try (ZipInputStream zipInputStream = new ZipInputStream(new ByteArrayInputStream(content))) {
-            ZipEntry zipEntry;
-            while((zipEntry = zipInputStream.getNextEntry()) != null) {
-                try {
-                    if (!zipEntry.isDirectory()) {
-                        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-                            copy(zipInputStream, out);
-                            result.put(zipEntry.getName(), out.toByteArray());
-                        }
-                    }
-                } finally {
-                    zipInputStream.closeEntry();
-                }
-            }
-        }
-
-        return result;
-    }
-
-    private static void copy(InputStream in, OutputStream out) throws IOException {
-        byte[] buffer = new byte[4096];
-        int read;
-        while((read = in.read(buffer)) != EOF) {
-            out.write(buffer, 0, read);
-        }
-    }
-
-
     private static class UploadResponseImpl implements UploadResponse {
         private final String message;
         private final String gufi;
@@ -295,5 +248,4 @@ class LorettaApiImpl implements LorettaApi {
             return gufi;
         }
     }
-
 }

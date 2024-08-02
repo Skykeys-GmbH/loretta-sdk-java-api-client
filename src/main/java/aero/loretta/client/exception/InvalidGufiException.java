@@ -1,6 +1,11 @@
 package aero.loretta.client.exception;
 
+import java.io.Serial;
+
 public class InvalidGufiException extends LorettaClientException {
+    @Serial
+    private static final long serialVersionUID = 4931672510288720047L;
+
     public InvalidGufiException() {
     }
 

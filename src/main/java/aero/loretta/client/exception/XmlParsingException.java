@@ -1,6 +1,11 @@
 package aero.loretta.client.exception;
 
+import java.io.Serial;
+
 public class XmlParsingException extends LorettaClientException {
+    @Serial
+    private static final long serialVersionUID = -7226201216569164931L;
+
     public XmlParsingException() {
     }
 
