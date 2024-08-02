@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>aero.loretta</groupId>
-    <artifactId>sdk-api-client-v1</artifactId>
-    <version>0.1.0</version>
+    <artifactId>sdk-api-client</artifactId>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
@@ -31,9 +31,9 @@
     </developers>
 
     <scm>
-        <connection>scm:git:https://github.com/Skykeys-GmbH/loretta-sdk-java-api-client-v1.git</connection>
-        <developerConnection>scm:git:ssh://github.com:Skykeys-GmbH/loretta-sdk-java-api-client-v1.git</developerConnection>
-        <url>https://github.com/Skykeys-GmbH/loretta-sdk-java-api-client-v1/tree/main</url>
+        <connection>scm:git:https://github.com/Skykeys-GmbH/loretta-sdk-java-api-client.git</connection>
+        <developerConnection>scm:git:ssh://github.com:Skykeys-GmbH/loretta-sdk-java-api-client.git</developerConnection>
+        <url>https://github.com/Skykeys-GmbH/loretta-sdk-java-api-client/tree/main</url>
     </scm>
 
     <properties>
@@ -170,5 +170,4 @@
             <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
     </distributionManagement>
-
 </project>
