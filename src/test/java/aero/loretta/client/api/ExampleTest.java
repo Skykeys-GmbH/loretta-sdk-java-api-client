@@ -22,11 +22,10 @@ public class ExampleTest {
                 .authentication(System.getenv("LORETTA_USERNAME"), System.getenv("LORETTA_PASSWORD"))
                 .build();
 
-        String gufi = UUID.randomUUID().toString();
+        LorettaApi.UploadResponse response = apiClient.uploadFlightPlan(readXml());
 
-        LorettaApi.UploadResponse response = apiClient.uploadFlightPlan(readXml(), gufi);
-
-        log.info("FlightPlan for gufi {} uploaded successfully. Response message from API: {}", gufi, response.getMessage());
+        log.info("FlightPlan for gufi {} uploaded successfully. Response message from API: {}",
+                 response.getGufi(), response.getMessage());
     }
 
     private String readXml() throws IOException {
