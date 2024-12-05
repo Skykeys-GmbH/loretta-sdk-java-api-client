@@ -25,12 +25,15 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
 import java.util.*;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 class LorettaApiImpl implements LorettaApi {
     private static final Logger log = LoggerFactory.getLogger(LorettaApi.class);
     private static final Pattern RX_UUID = Pattern.compile(
             "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$");
+    private static final Pattern RX_FLIGHTPLAN_ROOT = Pattern.compile(
+            "<FlightPlan(\\s|>)");
     private final DateTimeFormatter STD_GUFI_FORMATTER = (new DateTimeFormatterBuilder())
             .parseCaseInsensitive()
             .appendValue(ChronoField.YEAR, 4)
@@ -206,7 +209,8 @@ class LorettaApiImpl implements LorettaApi {
                 String xml;
                 try {
                     xml = new String(content);
-                    if (xml.contains("<FlightPlan ")) {
+                    Matcher matcher = RX_FLIGHTPLAN_ROOT.matcher(xml);
+                    if (matcher.find()) {
                         log.debug("{} has flightplan marker", filename);
                         try {
                             Metadata.parse(xml);
