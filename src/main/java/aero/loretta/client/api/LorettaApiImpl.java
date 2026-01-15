@@ -89,8 +89,12 @@ class LorettaApiImpl implements LorettaApi {
                         .setGufi(GUFI)
                         .setEmployeeIds(employeeIds));
 
-        String message = upload("flightplanxml", request);
-        return new UploadResponseImpl(message, GUFI);
+        LorettaFlight flight = upload("flights", request);
+        // TODO: this should be:
+        // return new UploadResponseImpl("ok", flight.getGufi());
+        // (but the API presently returns null for GUFI - WIP!)
+        ignoreUnused(flight);
+        return new UploadResponseImpl("ok", GUFI);
     }
 
     @Override
@@ -115,7 +119,7 @@ class LorettaApiImpl implements LorettaApi {
         );
     }
 
-    private <T> String upload(String suffix, T request) {
+    private <T> LorettaFlight upload(String suffix, T request) {
         String bodyPayload;
         try {
             bodyPayload = objectMapper.writeValueAsString(request);
@@ -148,11 +152,11 @@ class LorettaApiImpl implements LorettaApi {
             throw new LorettaClientException("Unable to send request", e);
         }
 
-        if (response.statusCode() == 200) {
+        if (response.statusCode() == 200 || response.statusCode() == 202) {
             try {
-                ApiSuccess success = objectMapper.readValue(response.body(), ApiSuccess.class);
-                log.debug("Successful response received: {}", success.getMessage());
-                return success.getMessage();
+                LorettaFlight flight = objectMapper.readValue(response.body(), LorettaFlight.class);
+                log.debug("Successful response received: gufi={}", flight.getGufi());
+                return flight;
             } catch (IOException ex) {
                 log.debug("Successful response received, but response couldn't be read", ex);
                 throw new LorettaClientException("Request was successful but couldn't read response", ex);
@@ -252,4 +256,6 @@ class LorettaApiImpl implements LorettaApi {
             return gufi;
         }
     }
+
+    private void ignoreUnused(Object o) {}
 }
